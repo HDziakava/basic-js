@@ -13,26 +13,43 @@ const { NotImplementedError } = require("../extensions/index.js");
  * transform([1, 2, 3, '--discard-prev', 4, 5]) => [1, 2, 4, 5]
  *
  */
-function transform(/* arr */) {
-  // if (!Array.isArray(arr))
-  //   throw new NotImplementedError(
-  //     "'arr' parameter must be an instance of the Array!"
-  //   );
+function transform(arr) {
+  if (!Array.isArray(arr))
+    throw new Error("'arr' parameter must be an instance of the Array!");
 
-  // const lenght = arr.length;
+  let array = [...arr];
 
-  // for (let i = 0; i < lenght; i++) {
-  //   if (arr.find((el) => el === "--double-next")) {
-  //   } else if (el === "--double-prev") {
-  //     newArr.push(arr[index - 1]);
-  //   } else if (el === "--discard-prev") {
-  //     newArr.pop();
-  //   } else if (el === "--discard-next") {
-  //   }
-  // }
-  // return arr;
-  throw new NotImplementedError("Not implemented");
-  // remove line with error and write your code here
+  const removeIndex = (index) => {
+    array = [...array.slice(0, index), ...array.slice(index + 1)];
+  };
+
+  const addElementToIndex = (index, el) => {
+    array = [...array.slice(0, index), el, ...array.slice(index)];
+  };
+
+  arr.forEach((element) => {
+    if (`${element}`.startsWith("--")) {
+      const modifierIndex = array.indexOf(element);
+      const isPrev = element.includes("prev");
+      const isNext = element.includes("next");
+      const modifierNum = isPrev ? -1 : isNext ? 1 : 0;
+      const elementToCopy = array[modifierIndex + modifierNum];
+
+      if (elementToCopy ?? false) {
+        if (element.includes("double")) {
+          addElementToIndex(modifierIndex, elementToCopy);
+        } else if (element.includes("discard")) {
+          removeIndex(modifierIndex + modifierNum);
+        }
+      }
+    }
+  });
+
+  const finalArray = array.filter(
+    (el) => !`${el}`.startsWith("--discard") && !`${el}`.startsWith("--double")
+  );
+
+  return finalArray;
 }
 
 module.exports = {
